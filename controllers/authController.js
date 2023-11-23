@@ -52,16 +52,9 @@ exports.signUpPOST = [
         });
 
         if (!errors.isEmpty()) {
-          res.status(403).json(errors.array());
-          //   res.json('sign-up', {
-          //     title: 'Sign-Up',
-          //     username: req.body.username,
-          //     displayName: req.body.displayName,
-          //     password: req.body.password,
-          //     confirmPassword: req.body.confirmPassword,
-          //     user: req.user,
-          //     errors: errors.array(),
-          //   });
+          res
+            .status(403)
+            .json({ username: req.body.username, errors: errors.array() });
         } else {
           await user.save();
           res.status(201).json({ message: 'User registered successfully' });
@@ -72,10 +65,31 @@ exports.signUpPOST = [
 ];
 
 exports.loginPOST = [
-  passport.authenticate('local', {
-    successRedirect: '/',
-    failureRedirect: '/log-in',
-    failureMessage: true,
-    failureFlash: true,
-  }),
+  (req, res, next) => {
+    passport.authenticate('local', (err, user, info) => {
+      if (err) {
+        return res.status(500).json({ error: 'Internal Server Error' });
+      }
+
+      if (!user) {
+        return res.status(401).json({ error: info.message });
+      }
+
+      req.logIn(user, (loginErr) => {
+        if (loginErr) {
+          return res.status(500).json({ error: 'Internal Server Error' });
+        }
+
+        return res.json({ message: 'Login successful', user });
+      });
+    })(req, res, next);
+  },
 ];
+
+exports.logout = (req, res, next) => {
+  req.logout((err) => {
+    if (err) {
+      next(err);
+    } else res.json({ message: 'Logout successful' });
+  });
+};

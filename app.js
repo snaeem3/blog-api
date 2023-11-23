@@ -17,6 +17,7 @@ const bcrypt = require('bcryptjs');
 const indexRouter = require('./routes/index');
 const usersRouter = require('./routes/users');
 const postsRouter = require('./routes/posts');
+const authRouter = require('./routes/auth');
 
 const User = require('./models/user');
 
@@ -85,6 +86,7 @@ app.use(passport.session());
 app.use('/', indexRouter);
 app.use('/users', usersRouter);
 app.use('/posts', postsRouter);
+app.use('/auth', authRouter);
 
 // catch 404 and forward to error handler
 app.use((req, res, next) => {
