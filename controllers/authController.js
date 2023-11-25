@@ -1,7 +1,9 @@
+const dotenv = require('dotenv').config();
 const asyncHandler = require('express-async-handler');
 const { body, validationResult } = require('express-validator');
 const bcrypt = require('bcryptjs');
 const passport = require('passport');
+const jwt = require('jsonwebtoken');
 const User = require('../models/user');
 
 // Returns true if the username is unique, false otherwise
@@ -79,8 +81,11 @@ exports.loginPOST = [
         if (loginErr) {
           return res.status(500).json({ error: 'Internal Server Error' });
         }
-
-        return res.json({ message: 'Login successful', user });
+        const accessToken = jwt.sign(
+          { name: user.username }, // payload needs to be a plain object
+          process.env.ACCESS_TOKEN_SECRET,
+        );
+        return res.json({ message: 'Login successful', user, accessToken });
       });
     })(req, res, next);
   },
@@ -91,5 +96,26 @@ exports.logout = (req, res, next) => {
     if (err) {
       next(err);
     } else res.json({ message: 'Logout successful' });
+  });
+};
+
+exports.verifyToken = (req, res, next) => {
+  const authHeader = req.headers.authorization;
+  console.log(authHeader);
+
+  const token = authHeader && authHeader.split(' ')[1];
+  console.log(token);
+
+  if (token === null || token === 'null') {
+    return res.status(401).json({ error: 'Token not provided' });
+  }
+
+  jwt.verify(token, process.env.ACCESS_TOKEN_SECRET, (err, user) => {
+    if (err) {
+      return res.status(403).json({ error: 'Invalid token' });
+    }
+
+    req.user = user;
+    next();
   });
 };

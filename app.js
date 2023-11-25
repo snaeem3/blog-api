@@ -1,6 +1,7 @@
 const createError = require('http-errors');
 const express = require('express');
 const cors = require('cors');
+const bodyParser = require('body-parser');
 const mongoose = require('mongoose');
 const path = require('path');
 const cookieParser = require('cookie-parser');
@@ -46,6 +47,8 @@ app.use(express.static(path.join(__dirname, 'public')));
 
 // Enable CORS for all routes
 app.use(cors());
+
+app.use(bodyParser.json());
 
 app.use(session({ secret: 'cats', resave: false, saveUninitialized: true }));
 
