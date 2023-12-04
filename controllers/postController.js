@@ -13,11 +13,12 @@ exports.postDetailGET = asyncHandler(async (req, res, next) => {
   if (post === null) {
     // No results
     const err = new Error('Post not found');
+    console.error(err);
     err.status = 404;
     return next(err);
   }
 
-  res.json(post);
+  res.status(200).json({ post });
 });
 
 exports.postCreatePOST = [
@@ -26,14 +27,11 @@ exports.postCreatePOST = [
   asyncHandler(async (req, res, next) => {
     const errors = validationResult(req);
 
-    console.log(`title: ${body.title}`);
-    console.log(`content: ${body.content}`);
-
     const post = new Post({
       title: req.body.title,
       content: req.body.content,
       date: Date.now(),
-      // author:
+      author: req.body.authorId,
     });
 
     if (!errors.isEmpty()) {

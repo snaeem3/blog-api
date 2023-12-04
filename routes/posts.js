@@ -7,7 +7,7 @@ const authController = require('../controllers/authController');
 
 router.get('/', postController.allPostsGET);
 
-router.get('/:postId', postController.postDetailGET);
+router.get('/:id', postController.postDetailGET);
 
 router.post('/new', authController.verifyToken, postController.postCreatePOST);
 
