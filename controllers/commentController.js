@@ -3,6 +3,41 @@ const { body, validationResult } = require('express-validator');
 const Comment = require('../models/comment');
 const Post = require('../models/post');
 
+exports.commentGET = asyncHandler(async (req, res, next) => {
+  try {
+    const comment = await Comment.findById(req.params.id).exec();
+    console.log('Comment found', comment);
+    res.status(200).json(comment);
+  } catch (error) {
+    console.error('Error Fetching Comment: ', error);
+    throw error;
+  }
+});
+
+exports.postCommentsGET = asyncHandler(async (req, res, next) => {
+  const fetchCommentsByIds = async (commentIds) => {
+    try {
+      const comments = await Comment.find({ _id: { $in: commentIds } });
+      console.log('Comments found: ', comments);
+      return comments;
+    } catch (error) {
+      console.error('Error fetching comments: ', error);
+      throw error;
+    }
+  };
+
+  try {
+    const post = await Post.findById(req.params.id).select('comments').exec();
+    console.log('post: ', post);
+    const postComments = await fetchCommentsByIds(post.comments);
+    console.log('Post comments found', postComments);
+    res.status(200).json(postComments);
+  } catch (error) {
+    console.error(`Error fetching ${req.params.id} comments`, error);
+    throw error;
+  }
+});
+
 exports.commentCreatePOST = [
   body('commentText', 'Comment must not be empty').trim().notEmpty().escape(),
 

@@ -12,6 +12,8 @@ router.get('/:id', postController.postDetailGET);
 
 router.post('/new', authController.verifyToken, postController.postCreatePOST);
 
+router.get('/:id/comments', commentController.postCommentsGET);
+
 router.post(
   '/:id/comments',
   authController.verifyToken,
