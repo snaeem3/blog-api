@@ -64,10 +64,20 @@ exports.commentCreatePOST = [
 
 exports.postCommentDELETE = asyncHandler(async (req, res, next) => {
   try {
-    console.log('user: ', req.user);
-    const comment = await Comment.findByIdAndDelete(
-      req.params.commentId,
-    ).exec();
+    const comment = await Comment.findById(req.params.commentId).exec();
+    if (!comment) {
+      return res.status(404).json({ error: 'Comment not found' });
+    }
+
+    console.log('comment author: ', comment.author.toString());
+    console.log('userId: ', req.user.userId);
+    if (comment.author.toString() !== req.user.userId) {
+      return res
+        .status(403)
+        .json({ error: 'You are not authorized to delete this comment' });
+    }
+
+    await comment.deleteOne();
   } catch (error) {
     console.error('Error deleting comment: ', error);
     return next(error);
