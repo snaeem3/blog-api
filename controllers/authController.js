@@ -82,7 +82,12 @@ exports.loginPOST = [
           return res.status(500).json({ error: 'Internal Server Error' });
         }
         const accessToken = jwt.sign(
-          { name: user.username }, // payload needs to be a plain object
+          {
+            name: user.username,
+            displayName: user.displayName,
+            isAdmin: user.admin,
+            userId: user._id,
+          }, // payload needs to be a plain object
           process.env.ACCESS_TOKEN_SECRET,
         );
         return res.json({ message: 'Login successful', user, accessToken });
