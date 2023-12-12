@@ -43,7 +43,6 @@ exports.commentCreatePOST = [
 
   asyncHandler(async (req, res, next) => {
     const errors = validationResult(req);
-    console.log(req.body);
     const comment = new Comment({
       post: req.params.id,
       content: req.body.commentText,
@@ -62,3 +61,28 @@ exports.commentCreatePOST = [
     }
   }),
 ];
+
+exports.postCommentDELETE = asyncHandler(async (req, res, next) => {
+  try {
+    console.log('user: ', req.user);
+    const comment = await Comment.findByIdAndDelete(
+      req.params.commentId,
+    ).exec();
+  } catch (error) {
+    console.error('Error deleting comment: ', error);
+    return next(error);
+  }
+
+  try {
+    const updatedPost = await Post.findByIdAndUpdate(req.params.postId, {
+      $pull: { comments: req.params.commentId },
+    });
+  } catch (error) {
+    console.error('Error updating post: ', error);
+    return next(error);
+  }
+
+  return res.status(200).json({
+    message: `Deleted comment ${req.params.commentId} and removed comment from post ${req.params.postId}`,
+  });
+});

@@ -20,4 +20,10 @@ router.post(
   commentController.commentCreatePOST,
 );
 
+router.delete(
+  '/:postId/comments/:commentId',
+  authController.verifyToken,
+  commentController.postCommentDELETE,
+);
+
 module.exports = router;
