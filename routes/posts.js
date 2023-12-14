@@ -12,6 +12,8 @@ router.get('/:id', postController.postDetailGET);
 
 router.put('/:id', authController.verifyToken, postController.postDetailPUT);
 
+router.delete('/:id', authController.verifyToken, postController.postDELETE);
+
 router.post('/new', authController.verifyToken, postController.postCreatePOST);
 
 router.get('/:id/comments', commentController.postCommentsGET);
